@@ -1,29 +1,27 @@
-#https://github.com/aligollez
-
-from time import sleep
 import requests
 from bs4 import BeautifulSoup
 from random import choice
 
-def GetProxy():
-    url = 'https://www.sslproxies.org'
+
+def get_proxy():
+    url = "https://www.sslproxies.org/"
     r = requests.get(url)
     soup = BeautifulSoup(r.content, 'html5lib')
-    return {'https': choice(list(map(lambda x: x[0]+':'+x[1],list(zip(list(map(lambda x: x.text, soup.find_all('td')[::8])), (map(lambda x: x.text, soup.find_all('td')[1::8])))))))}
+    return {'https': choice(list(map(lambda x:x[0]+':'+x[1], list(zip(map(lambda x:x.text, soup.findAll('td')[::8]), 
+                                                                      map(lambda x:x.text, soup.findAll('td')[1::8]))))))}
 
-def UseProxy(url):
-    while True:
+def proxy_request(request_type, url, **kwargs):
+    while 1:
         try:
-            proxy = GetProxy()
-            r = requests.get(url,proxies=proxy,timeout=5)
-            if r.status_code == 200:
-                print('Çalışan proxy = ', proxy)
-                break
-        except:
-            print('Bu proxy denendi ancak çalışmıyor : ', proxy)
-            pass
-    return r
+            proxy = get_proxy()
+            print(f"Using proxy {proxy['https']}")
+            response = requests.request(request_type, url, proxies=proxy, timeout=5, **kwargs)
+            break
+        except Exception as e:
+            print(e)
 
-url = 'http://api.ipify.org/'
-x = UseProxy(url)
-print(x.text)
+
+if __name__ == "__main__":
+	r = proxy_request('curl', "http://ifconfig.me")
+
+    
